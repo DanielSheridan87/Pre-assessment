@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport Eligibility Pre-Assessment</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 { margin-top: 0; color: #2c3e50; }
+        .question { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover { background-color: #004494; }
+        #resultArea {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+            font-weight: bold;
+        }
+        .eligible { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .ineligible { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .discretionary { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Eligibility Pre-Assessment</h2>
+    <form id="assessmentForm">
+        
+        <div class="question">
+            <label for="studentType">1. What is the student's classification?</label>
+            <select id="studentType" required>
+                <option value="">-- Select Type --</option>
+                <option value="mainstream">Mainstream</option>
+                <option value="sen">SEN (Special Educational Needs)</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label for="yearGroup">2. What is the student's Year Group?</label>
+            <select id="yearGroup" required>
+                <option value="">-- Select Year Group --</option>
+                <option value="primary">Years 0 to 6 (Primary)</option>
+                <option value="secondary">Years 7 to 11 (Secondary)</option>
+                <option value="post16">Post-16</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label for="distance">3. Distance to the nearest suitable school?</label>
+            <select id="distance" required>
+                <option value="">-- Select Distance --</option>
+                <option value="under2">Under 2 miles</option>
+                <option value="between2and3">2 to 3 miles</option>
+                <option value="over3">Over 3 miles</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label for="mobility">4. Are there mobility, medical, or specialized needs that prevent the student from walking the route?</label>
+            <select id="mobility" required>
+                <option value="">-- Select Need --</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label for="income">5. Does the household meet low-income criteria (e.g., maximum Working Tax Credit / free school meals)?</label>
+            <select id="income" required>
+                <option value="">-- Select Income Status --</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+
+        <button type="button" onclick="evaluateEligibility()">Assess Eligibility</button>
+    </form>
+
+    <div id="resultArea"></div>
+</div>
+
+<script>
+    function evaluateEligibility() {
+        const studentType = document.getElementById('studentType').value;
+        const yearGroup = document.getElementById('yearGroup').value;
+        const distance = document.getElementById('distance').value;
+        const mobility = document.getElementById('mobility').value;
+        const income = document.getElementById('income').value;
+        const resultArea = document.getElementById('resultArea');
+
+        if (!studentType || !yearGroup || !distance || !mobility || !income) {
+            alert("Please answer all questions.");
+            return;
+        }
+
+        let status = "ineligible"; // can be 'eligible', 'ineligible', or 'discretionary'
+        let title = "Likely Not Eligible";
+        let reason = "";
+
+        // Core Logic Matrix
+        if (yearGroup === "post16") {
+            status = "discretionary";
+            title = "Post-16 Discretionary Policy Applies";
+            reason = studentType === "sen" 
+                ? "Post-16 SEN transport is generally discretionary and may require a financial contribution or independent travel training assessment."
+                : "Mainstream Post-16 transport is non-statutory. Please check the specific local authority Post-16 transport policy statement for concessionary seat availability.";
+        } else if (mobility === "yes") {
+            status = "eligible";
+            title = "Likely Eligible";
+            reason = "Eligible due to mobility, medical, or specialized needs preventing the student from walking the route safely.";
+        } else if (yearGroup === "primary" && (distance === "between2and3" || distance === "over3")) {
+            status = "eligible";
+            title = "Likely Eligible";
+            reason = "Eligible: Primary-aged student living beyond the 2-mile statutory walking distance to their nearest suitable school.";
+        } else if (yearGroup === "secondary" && distance === "over3") {
+            status = "eligible";
+            title = "Likely Eligible";
+            reason = "Eligible: Secondary-aged student living beyond the 3-mile statutory walking distance to their nearest suitable school.";
+        } else if (yearGroup === "secondary" && distance === "between2and3" && income === "yes") {
+            status = "eligible";
+            title = "Likely Eligible";
+            reason = "Eligible under extended rights: Secondary student from a low-income household living between 2 and 6 miles from their nearest suitable school.";
+        } else {
+            status = "ineligible";
+            title = "Likely Not Eligible";
+            reason = "Not eligible based on standard statutory distance, and no mobility factors prevent walking.";
+        }
+
+        // Display Result
+        resultArea.style.display = "block";
+        resultArea.className = status;
+        resultArea.innerHTML = `<strong>${title}</strong><br>${reason}`;
+    }
+</script>
+
+</body>
+</html>
