@@ -190,68 +190,72 @@
         let title = "Likely Not Eligible";
         let reason = "";
 
-        // 1. Social Care Override
-        if (lac === "yes") {
-            status = "socialcare";
-            title = "Refer to Looked After Children / Social Care";
-            reason = "Transport for Children in Care is typically assessed and funded via Children's Social Care teams or cross-border agreements rather than mainstream statutory education transport.";
-        
-        // 2. Parental Preference Override
-        } else if (nearest === "no") {
+        // 1. Parental Preference Override
+        if (nearest === "no") {
             status = "ineligible";
             title = "Likely Not Eligible (Parental Preference)";
-            reason = "Statutory transport is not provided when a parent chooses to send their child to a school further away when a closer suitable school (or the school named in an EHCP) had places available.";
+            reason = "Statutory transport is not provided when a parent chooses to send their child to a school further away when a closer suitable school (or the school named in Section I of the EHCP) had places available.";
         
-        // 3. Post-16 Override
+        // 2. Post-16 Override
         } else if (year === "post16") {
             status = "discretionary";
             title = "Post-16 Discretionary Policy Applies";
             reason = type === "sen" 
                 ? "Post-16 SEN transport is non-statutory. It may require an independent travel training assessment or a financial contribution under the Post-16 Transport Policy Statement."
-                : "Mainstream Post-16 transport is non-statutory. Check local authority policy for concessionary seat availability (often requiring a fee).";
+                : "Mainstream Post-16 transport is non-statutory. Check local authority policy for concessionary seat availability.";
         
-        // 4. Temporary Medical Override
+        // 3. Temporary Medical Override
         } else if (ehcp === "temporary") {
             status = "discretionary";
             title = "Temporary / Discretionary Assessment Required";
             reason = "Temporary medical needs (e.g., broken bones, surgery) are usually not covered by statutory transport but may be assessed for short-term discretionary support with medical evidence.";
         
-        // 5. Permanent Mobility Override
+        // 4. Permanent Mobility / SEN Override
         } else if (ehcp === "permanent") {
             status = "eligible";
-            title = "Likely Eligible (Mobility Need)";
-            reason = "Eligible due to a permanent medical or mobility need that prevents the student from walking the route safely, regardless of the distance.";
+            title = "Likely Eligible (Mobility / SEN Need)";
+            reason = "Eligible due to a permanent medical or SEN mobility need that prevents the student from walking the route safely, regardless of the distance.";
         
-        // 6. Primary Age Statutory Distance
+        // 5. Primary Age Statutory Distance
         } else if (year === "primary" && distance !== "under2") {
             status = "eligible";
             title = "Likely Eligible (Statutory Distance)";
             reason = "Eligible: Primary-aged student living beyond the 2-mile statutory walking distance to their nearest suitable school.";
         
-        // 7. Secondary Age Statutory Distance
+        // 6. Secondary Age Statutory Distance
         } else if (year === "secondary" && (distance === "between3and15" || distance === "over15")) {
             status = "eligible";
             title = "Likely Eligible (Statutory Distance)";
             reason = "Eligible: Secondary-aged student living beyond the 3-mile statutory walking distance to their nearest suitable school.";
         
-        // 8. Low-Income Extended Rights (Secondary, 2-6 miles)
-        // Note: For simplicity in this logic, 'between2and3' and 'between3and15' cover the statutory 2-6 mile bracket.
+        // 7. Low-Income Extended Rights (Secondary, 2-6 miles)
         } else if (year === "secondary" && income === "yes" && distance === "between2and3") {
             status = "eligible";
             title = "Likely Eligible (Extended Rights - Low Income)";
             reason = "Eligible: Secondary student from a low-income household living between 2 and 6 miles from their nearest suitable school.";
         
-        // 9. Faith School Extended Rights (Secondary, Low Income, 2-15 miles)
+        // 8. Faith School Extended Rights (Secondary, Low Income, 2-15 miles)
         } else if (year === "secondary" && faith === "yes" && income === "yes" && distance !== "over15" && distance !== "under2") {
             status = "eligible";
             title = "Likely Eligible (Extended Rights - Faith School)";
             reason = "Eligible: Secondary student from a low-income household attending the nearest suitable faith school based on religion/belief, living between 2 and 15 miles away.";
         
-        // 10. Default Fallback
+        // 9. Default Fallback
         } else {
             status = "ineligible";
             title = "Likely Not Eligible";
-            reason = "Not eligible based on standard statutory distance criteria, and no overriding mobility, extended rights, or social care factors apply.";
+            reason = "Not eligible based on standard statutory distance criteria, and no overriding SEN mobility or low-income factors apply.";
+        }
+
+        // 10. LAC Modifier (Evaluated AFTER education duties)
+        if (lac === "yes") {
+            if (status === "eligible") {
+                reason += "<br><br><em>Note: As the student is a Looked After Child, please ensure coordination with the child's social worker regarding this provision.</em>";
+            } else if (status === "ineligible") {
+                status = "socialcare";
+                title = "Not Eligible for Statutory Education Transport - Refer to Social Care";
+                reason = "This student does not meet the statutory education transport criteria. However, because they are a Looked After Child, transport may be funded or arranged by Children's Social Care. Please refer this application to the child's social worker.";
+            }
         }
 
         // Display Result
@@ -260,6 +264,3 @@
         resultArea.innerHTML = `<strong>${title}</strong><br><br>${reason}`;
     }
 </script>
-
-</body>
-</html>
