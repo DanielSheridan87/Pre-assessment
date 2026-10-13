@@ -9,7 +9,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f4f7f6;
             color: #333;
-            max-width: 600px;
+            max-width: 700px;
             margin: 40px auto;
             padding: 20px;
         }
@@ -19,7 +19,22 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        h2 { margin-top: 0; color: #2c3e50; }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .header-container h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        .logo {
+            max-height: 60px;
+            max-width: 150px;
+        }
         .question { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: bold; }
         select {
@@ -27,18 +42,20 @@
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 16px;
+            font-size: 15px;
+            background-color: #fafafa;
         }
         button {
             background-color: #0056b3;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 14px 20px;
             font-size: 16px;
+            font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 15px;
         }
         button:hover { background-color: #004494; }
         #resultArea {
@@ -46,17 +63,24 @@
             padding: 15px;
             border-radius: 4px;
             display: none;
-            font-weight: bold;
+            font-size: 15px;
+            line-height: 1.5;
         }
         .eligible { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .ineligible { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .discretionary { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .socialcare { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Eligibility Pre-Assessment</h2>
+    <div class="header-container">
+        <h2>Eligibility Pre-Assessment</h2>
+        <!-- Replace 'bcp-logo.png' with your local file or hosted URL -->
+        <img src="bcp-logo.png" alt="BCP Council Logo" class="logo" onerror="this.style.display='none'">
+    </div>
+
     <form id="assessmentForm">
         
         <div class="question">
@@ -69,7 +93,28 @@
         </div>
 
         <div class="question">
-            <label for="yearGroup">2. What is the student's Year Group?</label>
+            <label for="ehcpMed">2. What is the student's EHCP and medical status?</label>
+            <select id="ehcpMed" required>
+                <option value="">-- Select Status --</option>
+                <option value="finalized">Finalized Education, Health and Care Plan (EHCP)</option>
+                <option value="draft">EHCP in Draft / Under Assessment</option>
+                <option value="permanent">Permanent Medical/Mobility Need (prevents walking)</option>
+                <option value="temporary">Temporary Medical/Mobility Need (e.g., broken bone)</option>
+                <option value="none">No EHCP or Medical Need</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label for="lac">3. Is the student a Looked After Child (LAC) or currently in foster care?</label>
+            <select id="lac" required>
+                <option value="">-- Select --</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label for="yearGroup">4. What is the student's Year Group?</label>
             <select id="yearGroup" required>
                 <option value="">-- Select Year Group --</option>
                 <option value="primary">Years 0 to 6 (Primary)</option>
@@ -79,26 +124,37 @@
         </div>
 
         <div class="question">
-            <label for="distance">3. Distance to the nearest suitable school?</label>
-            <select id="distance" required>
-                <option value="">-- Select Distance --</option>
-                <option value="under2">Under 2 miles</option>
-                <option value="between2and3">2 to 3 miles</option>
-                <option value="over3">Over 3 miles</option>
+            <label for="nearestSchool">5. Is the requested school the nearest suitable school with places available?</label>
+            <select id="nearestSchool" required>
+                <option value="">-- Select --</option>
+                <option value="yes">Yes (or is the only named school in Section I of EHCP)</option>
+                <option value="no">No (Parental Preference)</option>
+                <option value="unsure">Unsure</option>
             </select>
         </div>
 
         <div class="question">
-            <label for="mobility">4. Are there mobility, medical, or specialized needs that prevent the student from walking the route?</label>
-            <select id="mobility" required>
-                <option value="">-- Select Need --</option>
+            <label for="faithSchool">6. Is the school being attended on the grounds of religion or belief?</label>
+            <select id="faithSchool" required>
+                <option value="">-- Select --</option>
                 <option value="yes">Yes</option>
                 <option value="no">No</option>
             </select>
         </div>
 
         <div class="question">
-            <label for="income">5. Does the household meet low-income criteria (e.g., maximum Working Tax Credit / free school meals)?</label>
+            <label for="distance">7. What is the shortest walking distance to the school?</label>
+            <select id="distance" required>
+                <option value="">-- Select Distance --</option>
+                <option value="under2">Under 2 miles</option>
+                <option value="between2and3">2 to 3 miles</option>
+                <option value="between3and15">3 to 15 miles</option>
+                <option value="over15">Over 15 miles</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label for="income">8. Does the household meet low-income criteria (e.g., maximum WTC / free school meals)?</label>
             <select id="income" required>
                 <option value="">-- Select Income Status --</option>
                 <option value="yes">Yes</option>
@@ -114,55 +170,94 @@
 
 <script>
     function evaluateEligibility() {
-        const studentType = document.getElementById('studentType').value;
-        const yearGroup = document.getElementById('yearGroup').value;
+        const type = document.getElementById('studentType').value;
+        const ehcp = document.getElementById('ehcpMed').value;
+        const lac = document.getElementById('lac').value;
+        const year = document.getElementById('yearGroup').value;
+        const nearest = document.getElementById('nearestSchool').value;
+        const faith = document.getElementById('faithSchool').value;
         const distance = document.getElementById('distance').value;
-        const mobility = document.getElementById('mobility').value;
         const income = document.getElementById('income').value;
         const resultArea = document.getElementById('resultArea');
 
-        if (!studentType || !yearGroup || !distance || !mobility || !income) {
-            alert("Please answer all questions.");
+        // Check if all fields are answered
+        if (!type || !ehcp || !lac || !year || !nearest || !faith || !distance || !income) {
+            alert("Please answer all questions to complete the pre-assessment.");
             return;
         }
 
-        let status = "ineligible"; // can be 'eligible', 'ineligible', or 'discretionary'
+        let status = "ineligible"; 
         let title = "Likely Not Eligible";
         let reason = "";
 
-        // Core Logic Matrix
-        if (yearGroup === "post16") {
+        // 1. Social Care Override
+        if (lac === "yes") {
+            status = "socialcare";
+            title = "Refer to Looked After Children / Social Care";
+            reason = "Transport for Children in Care is typically assessed and funded via Children's Social Care teams or cross-border agreements rather than mainstream statutory education transport.";
+        
+        // 2. Parental Preference Override
+        } else if (nearest === "no") {
+            status = "ineligible";
+            title = "Likely Not Eligible (Parental Preference)";
+            reason = "Statutory transport is not provided when a parent chooses to send their child to a school further away when a closer suitable school (or the school named in an EHCP) had places available.";
+        
+        // 3. Post-16 Override
+        } else if (year === "post16") {
             status = "discretionary";
             title = "Post-16 Discretionary Policy Applies";
-            reason = studentType === "sen" 
-                ? "Post-16 SEN transport is generally discretionary and may require a financial contribution or independent travel training assessment."
-                : "Mainstream Post-16 transport is non-statutory. Please check the specific local authority Post-16 transport policy statement for concessionary seat availability.";
-        } else if (mobility === "yes") {
+            reason = type === "sen" 
+                ? "Post-16 SEN transport is non-statutory. It may require an independent travel training assessment or a financial contribution under the Post-16 Transport Policy Statement."
+                : "Mainstream Post-16 transport is non-statutory. Check local authority policy for concessionary seat availability (often requiring a fee).";
+        
+        // 4. Temporary Medical Override
+        } else if (ehcp === "temporary") {
+            status = "discretionary";
+            title = "Temporary / Discretionary Assessment Required";
+            reason = "Temporary medical needs (e.g., broken bones, surgery) are usually not covered by statutory transport but may be assessed for short-term discretionary support with medical evidence.";
+        
+        // 5. Permanent Mobility Override
+        } else if (ehcp === "permanent") {
             status = "eligible";
-            title = "Likely Eligible";
-            reason = "Eligible due to mobility, medical, or specialized needs preventing the student from walking the route safely.";
-        } else if (yearGroup === "primary" && (distance === "between2and3" || distance === "over3")) {
+            title = "Likely Eligible (Mobility Need)";
+            reason = "Eligible due to a permanent medical or mobility need that prevents the student from walking the route safely, regardless of the distance.";
+        
+        // 6. Primary Age Statutory Distance
+        } else if (year === "primary" && distance !== "under2") {
             status = "eligible";
-            title = "Likely Eligible";
+            title = "Likely Eligible (Statutory Distance)";
             reason = "Eligible: Primary-aged student living beyond the 2-mile statutory walking distance to their nearest suitable school.";
-        } else if (yearGroup === "secondary" && distance === "over3") {
+        
+        // 7. Secondary Age Statutory Distance
+        } else if (year === "secondary" && (distance === "between3and15" || distance === "over15")) {
             status = "eligible";
-            title = "Likely Eligible";
+            title = "Likely Eligible (Statutory Distance)";
             reason = "Eligible: Secondary-aged student living beyond the 3-mile statutory walking distance to their nearest suitable school.";
-        } else if (yearGroup === "secondary" && distance === "between2and3" && income === "yes") {
+        
+        // 8. Low-Income Extended Rights (Secondary, 2-6 miles)
+        // Note: For simplicity in this logic, 'between2and3' and 'between3and15' cover the statutory 2-6 mile bracket.
+        } else if (year === "secondary" && income === "yes" && distance === "between2and3") {
             status = "eligible";
-            title = "Likely Eligible";
-            reason = "Eligible under extended rights: Secondary student from a low-income household living between 2 and 6 miles from their nearest suitable school.";
+            title = "Likely Eligible (Extended Rights - Low Income)";
+            reason = "Eligible: Secondary student from a low-income household living between 2 and 6 miles from their nearest suitable school.";
+        
+        // 9. Faith School Extended Rights (Secondary, Low Income, 2-15 miles)
+        } else if (year === "secondary" && faith === "yes" && income === "yes" && distance !== "over15" && distance !== "under2") {
+            status = "eligible";
+            title = "Likely Eligible (Extended Rights - Faith School)";
+            reason = "Eligible: Secondary student from a low-income household attending the nearest suitable faith school based on religion/belief, living between 2 and 15 miles away.";
+        
+        // 10. Default Fallback
         } else {
             status = "ineligible";
             title = "Likely Not Eligible";
-            reason = "Not eligible based on standard statutory distance, and no mobility factors prevent walking.";
+            reason = "Not eligible based on standard statutory distance criteria, and no overriding mobility, extended rights, or social care factors apply.";
         }
 
         // Display Result
         resultArea.style.display = "block";
         resultArea.className = status;
-        resultArea.innerHTML = `<strong>${title}</strong><br>${reason}`;
+        resultArea.innerHTML = `<strong>${title}</strong><br><br>${reason}`;
     }
 </script>
 
